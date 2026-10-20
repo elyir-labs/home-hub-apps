@@ -79,10 +79,12 @@ struct Tap: Codable, Equatable {
     let at: Date
 }
 
-/// What the Houses app tells the shell about its list.
+/// What the Houses app tells the shell: its list, the house it opened, and its asks about notifications.
 enum HousesMessage: Equatable {
     case list([HouseRecord])
     case opened(String)
+    case pushIdentity
+    case pushOff
 
     static func parse(_ body: Any) -> HousesMessage? {
         guard let body = body as? [String: Any], let type = body["type"] as? String else { return nil }
@@ -93,6 +95,10 @@ enum HousesMessage: Equatable {
         case "houses:opened":
             guard let id = body["id"] as? String, HouseLink.isID(id) else { return nil }
             return .opened(id)
+        case "houses:push-identity":
+            return .pushIdentity
+        case "houses:push-off":
+            return .pushOff
         default:
             return nil
         }
