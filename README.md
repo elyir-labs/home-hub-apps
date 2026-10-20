@@ -53,8 +53,10 @@ one house, it asks which, starting on the house last opened. A tap on a button r
 else opens `?shell=android&open=<id>` on that house.
 
 - The Houses app hands over its list with `window.HousesShell.postMessage(JSON.stringify({type: 'houses:list',
-  houses: [...]}))` and `{type: 'houses:opened', id}`. Only the Houses app's own main frame is heard. The list is
-  kept sealed with a key the Android Keystore holds; a house the list no longer has is forgotten, with its last glance.
+  houses: [...]}))` and `{type: 'houses:opened', id}`, through a web message listener that only the Houses app's own
+  origin is given and only its main frame is heard on. A web view too old for that gets no bridge, and the widget
+  there says "Open Houses to add your house." The list is kept sealed with a key the Android Keystore holds; a house
+  the list no longer has is forgotten, with its last glance.
 - It asks each house about every quarter of an hour with WorkManager, at `https://<lan>` when `/alive` answers there
   within a second and a half, else at the house's own address. When the house does not answer it shows the last
   glance and how old it is, or the name and "Can’t reach it right now".

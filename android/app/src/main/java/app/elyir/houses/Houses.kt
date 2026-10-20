@@ -22,7 +22,6 @@ import android.os.Message
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.WindowManager
 import android.webkit.CookieManager
-import android.webkit.JavascriptInterface
 import android.webkit.PermissionRequest
 import android.webkit.RenderProcessGoneDetail
 import android.webkit.ValueCallback
@@ -168,23 +167,14 @@ class Houses : Activity() {
 
     /**
      * The Houses app hands over its list for the widget as `window.HousesShell.postMessage(json)` (docs/apps.md, "What
-     * the page gives the shell"). Where the web view can say which frame is speaking, only the Houses app's own main
-     * frame is heard and nothing else is even given the object. An older web view without that is given a plain
-     * interface, which every frame can reach, so there it is heard only while the main frame is on the Houses app.
+     * the page gives the shell"). Only frames from the Houses app's own origin are given the object, and only its main
+     * frame is believed. A web view too old to say which frame is speaking gets no bridge at all, so there the widget
+     * only ever says "Open Houses to add your house."
      */
-    @SuppressLint("JavascriptInterface")
     private fun listen(view: WebView) {
-        if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
-            WebViewCompat.addWebMessageListener(view, "HousesShell", setOf(Shell.origin(home))) { _, message, from, mainFrame, _ ->
-                if (Shell.trusts(mainFrame, from.host, home)) message.data?.let(::heard)
-            }
-        } else {
-            view.addJavascriptInterface(object {
-                @JavascriptInterface
-                fun postMessage(body: String) = ui.post {
-                    if (Shell.trusts(true, web?.url?.let { Uri.parse(it).host }, home)) heard(body)
-                }
-            }, "HousesShell")
+        if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) return
+        WebViewCompat.addWebMessageListener(view, "HousesShell", setOf(Shell.origin(home))) { _, message, from, mainFrame, _ ->
+            if (Shell.trusts(mainFrame, from.host, home)) message.data?.let(::heard)
         }
     }
 
