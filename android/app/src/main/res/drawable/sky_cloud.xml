@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Cloudy, in the board's 210x150 box (design/widget/). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="22dp"
+    android:height="16dp"
+    android:viewportWidth="210"
+    android:viewportHeight="150">
+    <path
+        android:pathData="M16,86a56,36 0 1,0 112,0a56,36 0 1,0 -112,0z"
+        android:fillColor="#E6EEF0F6" />
+    <path
+        android:pathData="M74,74a44,34 0 1,0 88,0a44,34 0 1,0 -88,0z"
+        android:fillColor="#EBE2E6F0" />
+    <path
+        android:pathData="M24,98a72,24 0 1,0 144,0a72,24 0 1,0 -144,0z"
+        android:fillColor="#D9CED4E2" />
+</vector>

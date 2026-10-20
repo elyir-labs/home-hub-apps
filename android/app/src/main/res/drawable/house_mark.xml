@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The hub's house in ink, its lamp lit (app/public/icon.svg), as the widget draws it. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+    <path
+        android:pathData="M112,248 L256,120 L400,248 M148,226 L148,396 L364,396 L364,226"
+        android:strokeColor="@color/ink"
+        android:strokeWidth="34"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M226,306a30,30 0 1,0 60,0a30,30 0 1,0 -60,0z"
+        android:fillColor="@color/lamp" />
+</vector>

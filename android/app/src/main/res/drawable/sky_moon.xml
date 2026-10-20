@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A clear night, in the board's 210x150 box (design/widget/). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="22dp"
+    android:height="16dp"
+    android:viewportWidth="210"
+    android:viewportHeight="150">
+    <path
+        android:pathData="M100.19,29.25A46,46 0 1,0 147.32,93.02A40,40 0 0,1 100.19,29.25z"
+        android:fillColor="#EBE2E6F0" />
+</vector>

@@ -1,4 +1,7 @@
 <resources>
     <color name="night">#0C0D10</color>
     <color name="quiet">#B9B5AD</color>
+    <color name="ink">#F1EEE8</color>
+    <color name="lamp">#E9B872</color>
+    <color name="caption">#8D8A84</color>
 </resources>

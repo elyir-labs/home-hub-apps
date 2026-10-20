@@ -1,4 +1,17 @@
 <resources>
     <string name="app_name">Houses</string>
     <string name="unreachable">Can’t reach your houses right now. Check that this phone is online.</string>
+
+    <!-- The widget picker, and the house the widget shows there before it is added. -->
+    <string name="widget_name">Your house</string>
+    <string name="widget_small_about">How the house is. A tap opens it.</string>
+    <string name="widget_medium_about">How the house is, with Bedtime and Everything off.</string>
+    <string name="widget_pick">Which house should this show?</string>
+    <string name="widget_house">House</string>
+    <string name="widget_sample_name" translatable="false">Home</string>
+    <string name="widget_sample_temp" translatable="false">78°</string>
+    <string name="widget_sample_lines" translatable="false">On in 5 rooms\n2 people home</string>
+    <string name="widget_sample_line" translatable="false">On in 5 rooms · 2 people home</string>
+    <string name="widget_bedtime">Bedtime</string>
+    <string name="widget_everything_off">Everything off</string>
 </resources>

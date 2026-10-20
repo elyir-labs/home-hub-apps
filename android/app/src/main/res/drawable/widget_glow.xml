@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The lamp's glow rising from the widget's foot. The box is stretched to the widget, so the circle becomes the
+     board's ellipse: 70% of the width by 60% of the height, fading out by 70% of the way. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="60dp"
+    android:height="70dp"
+    android:viewportWidth="60"
+    android:viewportHeight="70">
+    <path android:pathData="M0,0h60v70h-60z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="30"
+                android:centerY="70"
+                android:gradientRadius="29.4"
+                android:startColor="#2EE9B872"
+                android:endColor="#00E9B872" />
+        </aapt:attr>
+    </path>
+</vector>
