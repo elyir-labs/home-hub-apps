@@ -4,7 +4,6 @@
  with Apple, and answer the page with where to send and what to seal to (Push.swift). A tap on a notification opens
  its house.
  */
-import os
 import SwiftUI
 import UIKit
 import UserNotifications
@@ -44,10 +43,6 @@ final class PushRegistration {
 
     func identity() async -> PushAnswer {
         guard let keys = PushKeys.loadOrMake() else { return .failed("This phone would not keep the key.") }
-        #if DEBUG
-        Logger(subsystem: "app.elyir.houses", category: "push")
-            .debug("push keys p256dh=\(keys.p256dh.base64URL, privacy: .public) auth=\(keys.auth.base64URL, privacy: .public)")
-        #endif
         let center = UNUserNotificationCenter.current()
         do {
             guard try await center.requestAuthorization(options: [.alert, .sound, .badge]) else { return .denied }
