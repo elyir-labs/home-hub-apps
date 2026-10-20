@@ -3,7 +3,8 @@
  Where the app leaves the houses for the widget. The list, with each house's pass, is in the keychain under an access
  group the app and the widget share, readable after the phone's first unlock so a widget can refresh on a locked
  phone, and never carried to another device. What is not a secret (the house last opened, each house's last glance,
- a tap on a button) is in the App Group's defaults.
+ a tap on a button) is in the App Group's defaults. The phone's key for sealed notifications sits beside the list, under
+ its own name, so the notification extension can open what arrives (Push.swift).
  */
 import Foundation
 import Security
@@ -59,16 +60,16 @@ enum Keychain {
     /// `$(AppIdentifierPrefix)app.elyir.houses.shared`, from each target's Info.plist, so it carries the team's prefix.
     static var group: String? { Bundle.main.object(forInfoDictionaryKey: "HousesKeychainGroup") as? String }
 
-    private static var query: [String: Any] {
+    private static func query(_ account: String) -> [String: Any] {
         var q: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
                                 kSecAttrService as String: "app.elyir.houses",
-                                kSecAttrAccount as String: "houses"]
+                                kSecAttrAccount as String: account]
         if let group, !group.isEmpty { q[kSecAttrAccessGroup as String] = group }
         return q
     }
 
-    static func read() -> Data? {
-        var q = query
+    static func read(_ account: String = "houses") -> Data? {
+        var q = query(account)
         q[kSecReturnData as String] = true
         q[kSecMatchLimit as String] = kSecMatchLimitOne
         var out: CFTypeRef?
@@ -76,15 +77,15 @@ enum Keychain {
     }
 
     @discardableResult
-    static func write(_ data: Data) -> Bool {
+    static func write(_ data: Data, account: String = "houses") -> Bool {
         let attrs: [String: Any] = [kSecValueData as String: data,
                                     kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly]
-        let status = SecItemUpdate(query as CFDictionary, attrs as CFDictionary)
+        let status = SecItemUpdate(query(account) as CFDictionary, attrs as CFDictionary)
         if status == errSecItemNotFound {
-            return SecItemAdd(query.merging(attrs) { $1 } as CFDictionary, nil) == errSecSuccess
+            return SecItemAdd(query(account).merging(attrs) { $1 } as CFDictionary, nil) == errSecSuccess
         }
         return status == errSecSuccess
     }
 
-    static func clear() { SecItemDelete(query as CFDictionary) }
+    static func clear(_ account: String = "houses") { SecItemDelete(query(account) as CFDictionary) }
 }

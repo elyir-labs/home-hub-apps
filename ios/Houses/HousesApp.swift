@@ -4,6 +4,8 @@ import SwiftUI
 
 @main
 struct HousesApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var delegate
+
     var body: some Scene {
         WindowGroup { ShellView() }
     }
@@ -11,8 +13,9 @@ struct HousesApp: App {
 
 /// The Houses app, edge to edge, on the panel's own night, with the startup over it until it is ready. It waits for
 /// the storefront before loading, so the first page already knows what the store allows; a store that does not
-/// answer quickly is treated as unknown.
+/// answer quickly is treated as unknown. A tap on the widget or on a notification opens that house.
 struct ShellView: View {
+    @EnvironmentObject private var app: AppDelegate
     @State private var start: URL?
     @State private var storefront: String?
     @State private var asked = false
@@ -39,12 +42,13 @@ struct ShellView: View {
             }
         }
         .onOpenURL { url in
-            guard let id = HouseLink.id(url) else { return }
-            open = id
-            taps += 1
-            if asked { start = Shell.start(at: Self.home, storefront: storefront, open: id) }
+            if let id = HouseLink.id(url) { go(id) }
+        }
+        .onChange(of: app.ask) { _, ask in
+            if let ask { go(ask.id) }
         }
         .task {
+            if open == nil, let id = app.ask?.id { open = id }
             let store = await withTaskGroup(of: String?.self) { group in
                 group.addTask { await Storefront.current?.countryCode }
                 group.addTask { try? await Task.sleep(for: .seconds(1.5)); return nil }
@@ -56,6 +60,12 @@ struct ShellView: View {
             asked = true
             start = Shell.start(at: Self.home, storefront: store, open: open)
         }
+    }
+
+    private func go(_ id: String) {
+        open = id
+        taps += 1
+        if asked { start = Shell.start(at: Self.home, storefront: storefront, open: id) }
     }
 
     /// `-houses http://localhost:5174/` on the scheme's arguments points a simulator at the Houses app's dev server.

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		000000000000000000000026 /* HousesWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001D /* HousesWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		000000000000000000000032 /* HousesNotify.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 000000000000000000000029 /* HousesNotify.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -25,6 +26,13 @@
 			remoteGlobalIDString = 00000000000000000000001E;
 			remoteInfo = HousesWidget;
 		};
+		000000000000000000000033 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 000000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 00000000000000000000002B;
+			remoteInfo = HousesNotify;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -35,6 +43,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				000000000000000000000026 /* HousesWidget.appex in Embed Foundation Extensions */,
+				000000000000000000000032 /* HousesNotify.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -45,13 +54,27 @@
 		000000000000000000000004 /* Houses.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Houses.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000000000000000000000005 /* HousesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HousesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00000000000000000000001D /* HousesWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HousesWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		000000000000000000000029 /* HousesNotify.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HousesNotify.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		000000000000000000000035 /* Exceptions for "Shared" folder in "HousesNotify" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Intents.swift,
+				Reach.swift,
+				WidgetFace.swift,
+			);
+			target = 00000000000000000000002B /* HousesNotify */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		000000000000000000000006 /* Houses */ = {isa = PBXFileSystemSynchronizedRootGroup; path = Houses; sourceTree = "<group>"; };
 		000000000000000000000007 /* HousesTests */ = {isa = PBXFileSystemSynchronizedRootGroup; path = HousesTests; sourceTree = "<group>"; };
-		00000000000000000000001B /* Shared */ = {isa = PBXFileSystemSynchronizedRootGroup; path = Shared; sourceTree = "<group>"; };
+		00000000000000000000001B /* Shared */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (000000000000000000000035 /* Exceptions for "Shared" folder in "HousesNotify" target */, ); path = Shared; sourceTree = "<group>"; };
 		00000000000000000000001C /* HousesWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; path = HousesWidget; sourceTree = "<group>"; };
+		00000000000000000000002A /* HousesNotify */ = {isa = PBXFileSystemSynchronizedRootGroup; path = HousesNotify; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,6 +99,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		00000000000000000000002D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -85,6 +115,7 @@
 				000000000000000000000006 /* Houses */,
 				00000000000000000000001B /* Shared */,
 				00000000000000000000001C /* HousesWidget */,
+				00000000000000000000002A /* HousesNotify */,
 				000000000000000000000007 /* HousesTests */,
 				000000000000000000000009 /* Products */,
 			);
@@ -96,6 +127,7 @@
 				000000000000000000000004 /* Houses.app */,
 				000000000000000000000005 /* HousesTests.xctest */,
 				00000000000000000000001D /* HousesWidget.appex */,
+				000000000000000000000029 /* HousesNotify.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -116,6 +148,7 @@
 			);
 			dependencies = (
 				000000000000000000000027 /* PBXTargetDependency */,
+				000000000000000000000034 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				000000000000000000000006,
@@ -168,6 +201,27 @@
 			productReference = 00000000000000000000001D;
 			productType = "com.apple.product-type.app-extension";
 		};
+		00000000000000000000002B /* HousesNotify */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 00000000000000000000002F;
+			buildPhases = (
+				00000000000000000000002C /* Sources */,
+				00000000000000000000002D /* Frameworks */,
+				00000000000000000000002E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				00000000000000000000002A,
+				00000000000000000000001B,
+			);
+			name = HousesNotify;
+			productName = HousesNotify;
+			productReference = 000000000000000000000029;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -186,6 +240,9 @@
 						TestTargetID = 000000000000000000000002;
 					};
 					00000000000000000000001E = {
+						CreatedOnToolsVersion = 26.3;
+					};
+					00000000000000000000002B = {
 						CreatedOnToolsVersion = 26.3;
 					};
 				};
@@ -207,6 +264,7 @@
 				000000000000000000000002 /* Houses */,
 				000000000000000000000003 /* HousesTests */,
 				00000000000000000000001E /* HousesWidget */,
+				00000000000000000000002B /* HousesNotify */,
 			);
 		};
 /* End PBXProject section */
@@ -227,6 +285,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		000000000000000000000021 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		00000000000000000000002E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -257,6 +322,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		00000000000000000000002C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -269,6 +341,11 @@
 			isa = PBXTargetDependency;
 			target = 00000000000000000000001E /* HousesWidget */;
 			targetProxy = 000000000000000000000028 /* PBXContainerItemProxy */;
+		};
+		000000000000000000000034 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 00000000000000000000002B /* HousesNotify */;
+			targetProxy = 000000000000000000000033 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -440,6 +517,50 @@
 			};
 			name = Release;
 		};
+		000000000000000000000030 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = HousesNotify.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "HousesNotify-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = app.elyir.houses.notify;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		000000000000000000000031 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = HousesNotify.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "HousesNotify-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = app.elyir.houses.notify;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -475,6 +596,15 @@
 			buildConfigurations = (
 				000000000000000000000023 /* Debug */,
 				000000000000000000000024 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		00000000000000000000002F = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				000000000000000000000030 /* Debug */,
+				000000000000000000000031 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

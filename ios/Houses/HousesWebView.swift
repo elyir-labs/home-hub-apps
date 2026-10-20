@@ -98,7 +98,8 @@ struct HousesWebView: UIViewRepresentable {
     }
 }
 
-/// The Houses app's list, handed over for the widget (`houses:list`), and the house it opened (`houses:opened`).
+/// The Houses app's list, handed over for the widget (`houses:list`), the house it opened (`houses:opened`), and
+/// its asks for this phone's push identity (`houses:push-identity`, answered as an event) and to stop (`houses:push-off`).
 final class HousesMessages: NSObject, WKScriptMessageHandler {
     let home: URL
     init(home: URL) { self.home = home }
@@ -112,7 +113,23 @@ final class HousesMessages: NSObject, WKScriptMessageHandler {
         case .opened(let id):
             guard HouseStore.opened != id else { return }
             HouseStore.opened = id
+        case .pushIdentity:
+            let page = message.webView
+            Task { @MainActor [weak page] in
+                let answer = await PushRegistration.shared.identity()
+                answer.tell(page)
+            }
+            return
+        case .pushOff:
+            PushAnswer.off.tell(message.webView)
+            return
         }
         WidgetCenter.shared.reloadTimelines(ofKind: HouseWidgetKind.kind)
+    }
+}
+
+extension PushAnswer {
+    func tell(_ page: WKWebView?) {
+        page?.evaluateJavaScript(script, completionHandler: nil)
     }
 }
