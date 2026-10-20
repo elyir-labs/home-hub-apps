@@ -12,16 +12,33 @@ import java.net.URISyntaxException
 object Shell {
     const val HOUSES = "https://houses.elyir.app/"
 
-    /** The address the app opens. A storefront it cannot read counts as not the US (design/store-app/, C), so it is left off. */
-    fun start(base: String = HOUSES, storefront: String?): String {
+    /**
+     * The address the app opens. A storefront it cannot read counts as not the US (design/store-app/, C), so it is left
+     * off. `open` is the house a tap on the widget asked for.
+     */
+    fun start(base: String = HOUSES, storefront: String?, open: String? = null): String {
         val fragment = base.substringAfter('#', "")
         val address = base.substringBefore('#')
         val query = listOfNotNull(
             address.substringAfter('?', "").takeIf { it.isNotEmpty() },
             "shell=android",
             storefront?.let(::twoLetters)?.let { "store=$it" },
+            open?.takeIf(HouseLink::isID)?.let { "open=$it" },
         ).joinToString("&")
         return address.substringBefore('?') + "?" + query + (if (fragment.isEmpty()) "" else "#$fragment")
+    }
+
+    /**
+     * Whether a message about the houses came from the Houses app itself: its main frame, on its own host. A house
+     * framed inside it, or a page it navigated to, is never believed.
+     */
+    fun trusts(mainFrame: Boolean, host: String?, home: String = HOUSES): Boolean =
+        mainFrame && host != null && host.lowercase() == parse(home)?.host?.lowercase()
+
+    /** The scheme, host and port the web view may hear the Houses app from. */
+    fun origin(home: String = HOUSES): String {
+        val at = parse(home) ?: return home
+        return "${at.scheme}://${at.host}" + (if (at.port == -1) "" else ":${at.port}")
     }
 
     /** Play names the country in two letters already; the three-letter form is kept so both shells read the same. */
