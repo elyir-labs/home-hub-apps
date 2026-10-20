@@ -7,7 +7,7 @@
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>
-		<string>Night</string>
+		<string>Dark</string>
 	</dict>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>At home, the app talks to your house over your Wi-Fi.</string>

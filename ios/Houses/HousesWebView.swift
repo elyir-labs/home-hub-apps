@@ -8,8 +8,11 @@ import WebKit
 struct HousesWebView: UIViewRepresentable {
     let start: URL
     let home: URL
+    /// The Houses app's first page has drawn; and loading it failed, so the startup says so while this keeps trying.
+    var ready: () -> Void = {}
+    var failed: () -> Void = {}
 
-    func makeCoordinator() -> Coordinator { Coordinator(home: home) }
+    func makeCoordinator() -> Coordinator { Coordinator(start: start, home: home, ready: ready, failed: failed) }
 
     func makeUIView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
@@ -35,8 +38,27 @@ struct HousesWebView: UIViewRepresentable {
     func updateUIView(_ view: WKWebView, context: Context) {}
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
-        let home: URL
-        init(home: URL) { self.home = home }
+        let start: URL, home: URL
+        let ready: () -> Void, failed: () -> Void
+        private var shown = false
+        init(start: URL, home: URL, ready: @escaping () -> Void, failed: @escaping () -> Void) {
+            self.start = start; self.home = home; self.ready = ready; self.failed = failed
+        }
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            if !shown { shown = true; ready() }
+        }
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { retry(webView, error) }
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { retry(webView, error) }
+
+        /// Until the first page has drawn, a failed load is said under the house and tried again every few seconds.
+        private func retry(_ webView: WKWebView, _ error: Error) {
+            guard !shown, (error as NSError).code != NSURLErrorCancelled else { return }
+            failed()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak webView, start] in
+                if let webView, !self.shown { webView.load(URLRequest(url: start)) }
+            }
+        }
 
         func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             guard let url = action.request.url else { return decisionHandler(.cancel) }

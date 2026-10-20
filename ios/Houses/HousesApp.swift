@@ -9,15 +9,30 @@ struct HousesApp: App {
     }
 }
 
-/// The Houses app, edge to edge, on the panel's own night. It waits for the storefront before loading, so the
-/// first page already knows what the store allows; a store that does not answer quickly is treated as unknown.
+/// The Houses app, edge to edge, on the panel's own night, with the startup over it until it is ready. It waits for
+/// the storefront before loading, so the first page already knows what the store allows; a store that does not
+/// answer quickly is treated as unknown.
 struct ShellView: View {
     @State private var start: URL?
+    @State private var ready = false
+    @State private var unreachable = false
+    @State private var starting = true
+    @State private var full = !UserDefaults.standard.bool(forKey: Self.seen)
+    static let seen = "startup.seen"
 
     var body: some View {
         ZStack {
             Color("Night").ignoresSafeArea()
-            if let start { HousesWebView(start: start, home: Self.home).ignoresSafeArea() }
+            if let start {
+                HousesWebView(start: start, home: Self.home, ready: { ready = true; unreachable = false }, failed: { unreachable = true })
+                    .ignoresSafeArea()
+            }
+            if starting {
+                StartupView(full: full, ready: ready, unreachable: unreachable) {
+                    starting = false
+                    UserDefaults.standard.set(true, forKey: Self.seen)
+                }
+            }
         }
         .task {
             let store = await withTaskGroup(of: String?.self) { group in
