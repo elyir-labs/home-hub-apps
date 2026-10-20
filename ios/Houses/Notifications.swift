@@ -49,8 +49,11 @@ final class PushRegistration {
             .debug("push keys p256dh=\(keys.p256dh.base64URL, privacy: .public) auth=\(keys.auth.base64URL, privacy: .public)")
         #endif
         let center = UNUserNotificationCenter.current()
-        let allowed = (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
-        guard allowed else { return .denied }
+        do {
+            guard try await center.requestAuthorization(options: [.alert, .sound, .badge]) else { return .denied }
+        } catch {
+            return .failed(error.localizedDescription)
+        }
         switch await token() {
         case .success(let token): return .identity(PushIdentity.make(token: token, keys: keys))
         case .failure(let failure): return .failed(failure.reason)

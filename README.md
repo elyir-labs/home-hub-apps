@@ -38,9 +38,32 @@ It asks the house itself and never a server of ours, which takes three things fr
 
 A tap opens `houses://open/<id>`, and the app opens `https://houses.elyir.app/?shell=ios&store=US&open=<id>`.
 
+## Notifications (iOS)
+
+A house's notifications reach the store app through a sender Elyir runs, and the sender only ever carries sealed
+ones (decided 19 October 2026 in the hub's `docs/apps.md`). The phone makes a key once and keeps it in the keychain
+group it shares with its extensions; a house seals each notification to it the way web push does (RFC 8291,
+aes128gcm). What Apple delivers says only *One of your houses needs a look*; `ios/HousesNotify/`, a notification
+service extension, opens it on the phone, titles it with the phone's own name for the house and says what the house
+said. If anything is wrong it leaves the plain line. A tap opens that house
+(`https://houses.elyir.app/?shell=ios&store=US&open=<label>`).
+
+- **The page asks** `{type: 'houses:push-identity'}` on the same `houses` handler, from its own main frame only. The
+  app asks the person, registers with Apple, and answers with an event, `houses:push-identity`, whose `detail` is
+  `{kind: "apns", token, env: "sandbox" | "production", p256dh, auth}`, or `{denied: true}`, or `{error}`.
+  `{type: 'houses:push-off'}` is answered with `houses:push-off`, `{ok: true}`; the houses are told by the page.
+- **What arrives** is `{"aps": {"alert": {...}, "mutable-content": 1, "thread-id": <house>}, "h": <label>, "s": <sealed, base64url>}`,
+  and the sealed part is `{id, class, text, subject, house, label, at, tag}`.
+
+The simulator gets a real sandbox token, but `xcrun simctl push` hands a notification straight to the home screen
+without running the service extension, so on a simulator it shows the plain line; the opening is tested in
+`ios/HousesTests/PushTests.swift`, including against a body sealed by Python's `http_ece`. A real phone needs the
+team's Push Notifications capability on `app.elyir.houses` (with the App Group and keychain group for
+`app.elyir.houses.notify`), and the sender needs Elyir's APNs key, which is not configured yet.
+
 | | |
 |---|---|
-| `ios/` | Swift, iOS 17 and later, with the widget. `open ios/Houses.xcodeproj` |
+| `ios/` | Swift, iOS 17 and later, with the widget and notifications. `open ios/Houses.xcodeproj` |
 | `android/` | Kotlin, Android 8 and later. See below |
 
 Both start with J, drawn by the app from `startup.json` (`tools/startup.sh <hub checkout>` copies it from the hub's

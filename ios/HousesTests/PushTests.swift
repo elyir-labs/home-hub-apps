@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import CryptoKit
+import UserNotifications
 import XCTest
 @testable import Houses
 
@@ -23,8 +24,12 @@ final class PushTests: XCTestCase {
 
     func testThePhoneMakesItsKeyOnceAndKeepsItInTheSharedKeychainGroup() throws {
         XCTAssertNotNil(Keychain.group)
+        let before = Keychain.read(PushKeys.account)
         Keychain.clear(PushKeys.account)
-        defer { Keychain.clear(PushKeys.account) }
+        defer {
+            Keychain.clear(PushKeys.account)
+            if let before { Keychain.write(before, account: PushKeys.account) }
+        }
         XCTAssertNil(PushKeys.load())
         let made = try XCTUnwrap(PushKeys.loadOrMake())
         let again = try XCTUnwrap(PushKeys.loadOrMake())
@@ -117,6 +122,30 @@ final class PushTests: XCTestCase {
         XCTAssertEqual(String(data: plain, encoding: .utf8),
                        #"{"id":"n1","class":"needs","text":"The back door is open.","subject":"door","house":"Maple Court","label":"maple-court","at":1792000000,"tag":"door"}"#)
         XCTAssertEqual(Delivery.open(arrived(body), keys: theirs, houses: [maple])?.title, "Mum’s")
+    }
+
+    func testTheExtensionChangesOnlyTheTitleTheBodyAndTheThread() throws {
+        let content = UNMutableNotificationContent()
+        content.title = "Houses"
+        content.body = "One of your houses needs a look."
+        content.threadIdentifier = "maple-court-thread"
+        content.sound = .default
+        content.categoryIdentifier = "needs"
+        content.userInfo = arrived(try WebPush.seal(notice(), to: keys))
+        let request = UNNotificationRequest(identifier: "n1", content: content, trigger: nil)
+        let shown = Delivery.content(of: request, keys: keys, houses: [maple])
+        XCTAssertEqual(shown.title, "Mum’s")
+        XCTAssertEqual(shown.body, "The back door is open.")
+        XCTAssertEqual(shown.threadIdentifier, "maple-court")
+        XCTAssertEqual(shown.sound, .default)
+        XCTAssertEqual(shown.categoryIdentifier, "needs")
+        XCTAssertEqual(shown.userInfo["s"] as? String, content.userInfo["s"] as? String)
+
+        let stranger = PushKeys(privateKey: P256.KeyAgreement.PrivateKey(), auth: keys.auth)
+        let plain = Delivery.content(of: request, keys: stranger, houses: [maple])
+        XCTAssertEqual(plain.title, "Houses")
+        XCTAssertEqual(plain.body, "One of your houses needs a look.")
+        XCTAssertEqual(plain.threadIdentifier, "maple-court-thread")
     }
 
     // MARK: Anything wrong leaves the sender's plain line

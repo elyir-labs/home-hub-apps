@@ -8,6 +8,7 @@
  */
 import CryptoKit
 import Security
+import UserNotifications
 import Foundation
 
 /// The phone's key for sealed notifications and the secret that goes with it. Made once, kept in the keychain group
@@ -135,6 +136,17 @@ enum Delivery {
         else { return nil }
         let name = houses.first { $0.id == label }?.name.nonEmpty ?? notice.house?.nonEmpty ?? label
         return Shown(title: name, body: notice.text, thread: label)
+    }
+
+    /// What HousesNotify shows for a notification: the sealed part opened onto it, everything else as it came.
+    static func content(of request: UNNotificationRequest, keys: PushKeys?, houses: [HouseRecord]) -> UNNotificationContent {
+        guard let shown = open(request.content.userInfo, keys: keys, houses: houses),
+              let content = request.content.mutableCopy() as? UNMutableNotificationContent
+        else { return request.content }
+        content.title = shown.title
+        content.body = shown.body
+        content.threadIdentifier = shown.thread
+        return content
     }
 
     /// The house a notification is about, from the label beside the sealed part: what a tap opens.
