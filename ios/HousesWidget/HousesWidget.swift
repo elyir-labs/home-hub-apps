@@ -50,7 +50,9 @@ struct Provider: AppIntentTimelineProvider {
             guard let house = Face.choose(HouseStore.houses(), picked: configuration.house?.id, opened: HouseStore.opened) else {
                 return Entry(date: .now, face: .sample)
             }
-            return Entry(date: .now, face: Face.make(house: house, fresh: HouseStore.kept(house.id)?.glance, kept: nil, tap: nil, now: .now))
+            if let kept = HouseStore.kept(house.id) {
+                return Entry(date: .now, face: Face.make(house: house, fresh: kept.glance, kept: nil, tap: nil, now: .now))
+            }
         }
         return await entries(for: configuration).first!
     }

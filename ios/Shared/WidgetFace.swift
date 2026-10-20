@@ -37,11 +37,11 @@ struct WidgetFace: View {
                 weather
             }
             if face.hasHouse {
-                Text(face.name).font(.system(size: 17, weight: .medium)).lineLimit(1).padding(.top, 22)
+                Text(face.name).font(.system(size: 17, weight: .medium)).lineLimit(1).padding(.top, 23)
                 Text(face.lines.joined(separator: "\n"))
                     .font(.system(size: 13)).lineSpacing(1.5).lineLimit(face.age == nil ? 3 : 2)
                     .foregroundStyle(face.tone == .needs ? Ink.lamp : Ink.muted)
-                    .padding(.top, 4)
+                    .padding(.top, 5)
                 age
             } else {
                 Text(Words.noHouses).font(.system(size: 13)).lineSpacing(1.5).foregroundStyle(Ink.muted).padding(.top, 22)
@@ -57,7 +57,7 @@ struct WidgetFace: View {
                 HouseMark().frame(width: 28, height: 28).padding(.top, 5)
                 VStack(alignment: .leading, spacing: 0) {
                     if face.hasHouse {
-                        Text(face.name).font(.system(size: 17, weight: .medium)).lineLimit(1)
+                        Text(face.name).font(.system(size: 17, weight: .medium)).lineLimit(1).padding(.bottom, 1)
                         if let said = face.said {
                             Text(said.text).font(.system(size: 13)).lineLimit(2)
                                 .foregroundStyle(said.failed ? Ink.lamp : Ink.ink)
@@ -70,6 +70,7 @@ struct WidgetFace: View {
                         Text(Words.noHouses).font(.system(size: 13)).foregroundStyle(Ink.muted).padding(.top, 9)
                     }
                 }
+                .padding(.top, 1)
                 Spacer(minLength: 4)
                 weather
             }
