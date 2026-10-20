@@ -2,17 +2,24 @@
 import SwiftUI
 import UIKit
 import WebKit
+import WidgetKit
 
 /// One web view onto the Houses app. Everything a house shows is the page's; this only keeps the page in the app
 /// and sends what should leave it to the system browser.
 struct HousesWebView: UIViewRepresentable {
     let start: URL
+    /// How many times the widget has asked for a house, so asking for the same one again still goes there.
+    var taps = 0
     let home: URL
     /// The Houses app's first page has drawn; and loading it failed, so the startup says so while this keeps trying.
     var ready: () -> Void = {}
     var failed: () -> Void = {}
 
-    func makeCoordinator() -> Coordinator { Coordinator(start: start, home: home, ready: ready, failed: failed) }
+    func makeCoordinator() -> Coordinator {
+        let c = Coordinator(start: start, home: home, ready: ready, failed: failed)
+        c.taps = taps
+        return c
+    }
 
     func makeUIView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
@@ -20,6 +27,7 @@ struct HousesWebView: UIViewRepresentable {
         config.mediaTypesRequiringUserActionForPlayback = []
         // The panel opens the payment page a beat after the tap, once the address is claimed (docs/apps.md).
         config.preferences.javaScriptCanOpenWindowsAutomatically = true
+        config.userContentController.add(HousesMessages(home: home), name: "houses")
         let view = WKWebView(frame: .zero, configuration: config)
         view.navigationDelegate = context.coordinator
         view.uiDelegate = context.coordinator
@@ -35,10 +43,17 @@ struct HousesWebView: UIViewRepresentable {
         return view
     }
 
-    func updateUIView(_ view: WKWebView, context: Context) {}
+    /// A tap on the widget while the app is open moves the page to that house.
+    func updateUIView(_ view: WKWebView, context: Context) {
+        if context.coordinator.taps != taps {
+            context.coordinator.taps = taps
+            view.load(URLRequest(url: start))
+        }
+    }
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         let start: URL, home: URL
+        var taps = 0
         let ready: () -> Void, failed: () -> Void
         private var shown = false
         init(start: URL, home: URL, ready: @escaping () -> Void, failed: @escaping () -> Void) {
@@ -80,5 +95,24 @@ struct HousesWebView: UIViewRepresentable {
 
         /// The web content process can be ended by the system while the app is behind another; start the page again.
         func webViewWebContentProcessDidTerminate(_ webView: WKWebView) { webView.reload() }
+    }
+}
+
+/// The Houses app's list, handed over for the widget (`houses:list`), and the house it opened (`houses:opened`).
+final class HousesMessages: NSObject, WKScriptMessageHandler {
+    let home: URL
+    init(home: URL) { self.home = home }
+
+    func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard Shell.trusts(mainFrame: message.frameInfo.isMainFrame, host: message.frameInfo.securityOrigin.host, home: home),
+              let said = HousesMessage.parse(message.body) else { return }
+        switch said {
+        case .list(let houses):
+            guard HouseStore.save(houses) else { return }
+        case .opened(let id):
+            guard HouseStore.opened != id else { return }
+            HouseStore.opened = id
+        }
+        WidgetCenter.shared.reloadTimelines(ofKind: HouseWidgetKind.kind)
     }
 }
