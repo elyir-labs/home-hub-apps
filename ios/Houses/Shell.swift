@@ -11,13 +11,21 @@ enum Shell {
 
     /// The address the app opens. StoreKit names the storefront in three letters; the page wants two, and a
     /// storefront it cannot read counts as not the US (design/store-app/, C), so an unknown one is left off.
-    static func start(at base: URL = houses, storefront: String?) -> URL {
+    /// `open` is the house a tap on the widget asked for.
+    static func start(at base: URL = houses, storefront: String?, open: String? = nil) -> URL {
         var parts = URLComponents(url: base, resolvingAgainstBaseURL: false)!
         var query = parts.queryItems ?? []
         query.append(URLQueryItem(name: "shell", value: "ios"))
         if let store = storefront.flatMap(twoLetters) { query.append(URLQueryItem(name: "store", value: store)) }
+        if let open, HouseLink.isID(open) { query.append(URLQueryItem(name: "open", value: open)) }
         parts.queryItems = query
         return parts.url!
+    }
+
+    /// Whether a message about the houses came from the Houses app itself: its main frame, on its own host. A house
+    /// framed inside it, or a page it navigated to, is never believed.
+    static func trusts(mainFrame: Bool, host: String?, home: URL = houses) -> Bool {
+        mainFrame && host != nil && host?.lowercased() == home.host?.lowercased()
     }
 
     /// Only the storefronts the page treats differently need to be told apart; every other one is simply not the US.

@@ -14,6 +14,10 @@ struct HousesApp: App {
 /// answer quickly is treated as unknown.
 struct ShellView: View {
     @State private var start: URL?
+    @State private var storefront: String?
+    @State private var asked = false
+    @State private var open: String?
+    @State private var taps = 0
     @State private var ready = false
     @State private var unreachable = false
     @State private var starting = true
@@ -24,7 +28,7 @@ struct ShellView: View {
         ZStack {
             Color("Night").ignoresSafeArea()
             if let start {
-                HousesWebView(start: start, home: Self.home, ready: { ready = true; unreachable = false }, failed: { unreachable = true })
+                HousesWebView(start: start, taps: taps, home: Self.home, ready: { ready = true; unreachable = false }, failed: { unreachable = true })
                     .ignoresSafeArea()
             }
             if starting {
@@ -34,6 +38,12 @@ struct ShellView: View {
                 }
             }
         }
+        .onOpenURL { url in
+            guard let id = HouseLink.id(url) else { return }
+            open = id
+            taps += 1
+            if asked { start = Shell.start(at: Self.home, storefront: storefront, open: id) }
+        }
         .task {
             let store = await withTaskGroup(of: String?.self) { group in
                 group.addTask { await Storefront.current?.countryCode }
@@ -42,7 +52,9 @@ struct ShellView: View {
                 group.cancelAll()
                 return first
             }
-            start = Shell.start(at: Self.home, storefront: store)
+            storefront = store
+            asked = true
+            start = Shell.start(at: Self.home, storefront: store, open: open)
         }
     }
 
