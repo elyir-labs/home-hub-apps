@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The widget in the picker of Android 11 and earlier, which shows a picture rather than the layout: the night,
+     the lamp's glow, and the house. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/widget_night" />
+    <item
+        android:width="26dp"
+        android:height="26dp"
+        android:drawable="@drawable/house_mark"
+        android:gravity="top|start"
+        android:left="16dp"
+        android:top="16dp" />
+</layer-list>

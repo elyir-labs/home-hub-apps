@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The app icon's night, top to foot, with the lamp's glow over it. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/widget_radius" />
+            <gradient
+                android:angle="270"
+                android:startColor="#FF1A1D24"
+                android:endColor="@color/night" />
+        </shape>
+    </item>
+    <item android:drawable="@drawable/widget_glow" />
+</layer-list>

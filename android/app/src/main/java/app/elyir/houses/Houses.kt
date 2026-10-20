@@ -2,7 +2,8 @@
 /*
  The app: one web view onto the Houses app, edge to edge on the panel's own night, with J over it until it is
  ready. Everything a house shows is the page's; this only keeps the page in the app, sends what should leave it to
- the system browser, and passes the page's asks for the camera, the microphone and a file to Android.
+ the system browser, passes the page's asks for the camera, the microphone and a file to Android, keeps the list of
+ houses the page hands over for the widget, and opens the house a tap on the widget asked for.
  */
 package app.elyir.houses
 
@@ -33,6 +34,9 @@ import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.webkit.WebViewCompat
+import androidx.webkit.WebViewFeature
+import java.util.concurrent.Executors
 import kotlin.math.max
 
 class Houses : Activity() {
@@ -52,6 +56,10 @@ class Houses : Activity() {
     private var web: WebView? = null
     private var startup: StartupView? = null
     private var start: String? = null
+    private var asked = false
+    private var storefront: String? = null
+    private var opening: String? = null
+    private val keeping = Executors.newSingleThreadExecutor()
     private var shown = false
     private var failed = false
     private var asking: PermissionRequest? = null
@@ -61,6 +69,7 @@ class Houses : Activity() {
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
         home = devHome() ?: Shell.HOUSES
+        opening = HouseLink.id(intent?.dataString)
         edgeToEdge()
 
         val root = FrameLayout(this).apply { setBackgroundColor(getColor(R.color.night)) }
@@ -85,9 +94,22 @@ class Houses : Activity() {
 
         Storefront.ask(this, STOREFRONT_WAIT) { store ->
             if (isDestroyed) return@ask
-            start = Shell.start(home, store)
+            storefront = store
+            asked = true
+            start = Shell.start(home, store, opening)
             open()
         }
+    }
+
+    /** A tap on the widget while the app is open moves the page to that house. */
+    override fun onNewIntent(next: Intent) {
+        super.onNewIntent(next)
+        setIntent(next)
+        val id = HouseLink.id(next.dataString) ?: return
+        opening = id
+        if (!asked) return
+        start = Shell.start(home, storefront, id)
+        start?.let { web?.loadUrl(it) }
     }
 
     /**
@@ -140,6 +162,33 @@ class Houses : Activity() {
         }
         webViewClient = Client()
         webChromeClient = Chrome()
+        listen(this)
+    }
+
+    /**
+     * The Houses app hands over its list for the widget as `window.HousesShell.postMessage(json)` (docs/apps.md, "What
+     * the page gives the shell"). Only frames from the Houses app's own origin are given the object, and only its main
+     * frame is believed. A web view too old to say which frame is speaking gets no bridge at all, so there the widget
+     * only ever says "Open Houses to add your house."
+     */
+    private fun listen(view: WebView) {
+        if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) return
+        WebViewCompat.addWebMessageListener(view, "HousesShell", setOf(Shell.origin(home))) { _, message, from, mainFrame, _ ->
+            if (Shell.trusts(mainFrame, from.host, home)) message.data?.let(::heard)
+        }
+    }
+
+    private fun heard(body: String) {
+        val said = HousesMessage.parse(body) ?: return
+        val context = applicationContext
+        keeping.execute {
+            val store = HouseStore.of(context)
+            val changed = when (said) {
+                is HousesMessage.List -> store.save(said.houses)
+                is HousesMessage.Opened -> (store.opened != said.id).also { if (it) store.opened = said.id }
+            }
+            if (changed && Widgets.all(context).isNotEmpty()) Work.refresh(context)
+        }
     }
 
     private inner class Client : WebViewClient() {
@@ -277,6 +326,7 @@ class Houses : Activity() {
 
     override fun onDestroy() {
         ui.removeCallbacksAndMessages(null)
+        keeping.shutdown()
         web?.destroy()
         web = null
         super.onDestroy()

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sunny, in the board's 210x150 box (design/widget/). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="22dp"
+    android:height="16dp"
+    android:viewportWidth="210"
+    android:viewportHeight="150">
+    <path
+        android:pathData="M59,75a46,46 0 1,0 92,0a46,46 0 1,0 -92,0z"
+        android:fillColor="#FFF0D6A0" />
+</vector>

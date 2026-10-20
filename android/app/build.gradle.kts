@@ -33,6 +33,8 @@ android {
 dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("com.android.billingclient:billing:8.3.0")
+    implementation("androidx.webkit:webkit:1.11.0")
+    implementation("androidx.work:work-runtime:2.9.1")
     testImplementation("junit:junit:4.13.2")
     // android.jar's org.json only throws under JVM tests; the real one reads startup.json there.
     testImplementation("org.json:json:20240303")

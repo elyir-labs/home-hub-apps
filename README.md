@@ -58,7 +58,8 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
 A debug build can be pointed at the Houses app's dev server, which the emulator reaches as `10.0.2.2`, the way the
-iOS scheme's `-houses` argument does it. It is kept until it is cleared with `-e houses ""`:
+iOS scheme's `-houses` argument does it. It is kept until it is cleared with `-e houses ""`, and is read when the app
+starts, so `adb shell am force-stop app.elyir.houses` first if it is already running:
 
 ```sh
 adb shell am start -n app.elyir.houses/.Houses -e houses http://10.0.2.2:5174/
@@ -66,5 +67,25 @@ adb shell am start -n app.elyir.houses/.Houses -e houses http://10.0.2.2:5174/
 
 Only a debug build may use plain http, and only to `10.0.2.2` and `localhost`. The page's camera needs a secure
 page, so for reading a code on an emulator use `adb reverse tcp:5174 tcp:5174` and `http://localhost:5174/`.
+
+### The widget
+
+The same widget as iOS (`design/widget/` in the hub's repository, decided 20 October 2026), saying the same things
+in the same cases: the small size is how a house is, and the medium adds Bedtime and Everything off. The launcher's
+picker lists both sizes; either one made wide enough becomes the medium. When one is added and there is more than
+one house, it asks which, starting on the house last opened. A tap on a button runs it on the house; a tap anywhere
+else opens `?shell=android&open=<id>` on that house.
+
+- The Houses app hands over its list with `window.HousesShell.postMessage(JSON.stringify({type: 'houses:list',
+  houses: [...]}))` and `{type: 'houses:opened', id}`, through a web message listener that only the Houses app's own
+  origin is given and only its main frame is heard on. A web view too old for that gets no bridge, and the widget
+  there says "Open Houses to add your house." The list is kept sealed with a key the Android Keystore holds; a house
+  the list no longer has is forgotten, with its last glance.
+- It asks each house about every quarter of an hour with WorkManager, at `https://<lan>` when `/alive` answers there
+  within a second and a half, else at the house's own address. When the house does not answer it shows the last
+  glance and how old it is, or the name and "Can’t reach it right now".
+- What it says is worked out in `Glance.kt`, free of Android, and tested in `WidgetTest.kt` with the same cases as
+  `ios/HousesTests/WidgetTests.swift`. The layouts are `res/layout/widget_small.xml` and `widget_medium.xml`; the
+  picker shows them as they are, with a sample house.
 
 Licensed under Apache-2.0 (`LICENSE`). The names and icons are not (`NOTICE`).
