@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Houses</string>
+    <string name="unreachable">Can’t reach your houses right now. Check that this phone is online.</string>
+</resources>
